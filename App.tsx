@@ -1,34 +1,59 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 
-const listProdutos = [
-  {id:1, nome: 'Arroz', preco: 5.99},
-  {id:2, nome: 'Feijão', preco: 7.49},
-  {id:3, nome: 'Macarrão', preco: 3.49}
-]
+interface Produto {
+  id: number;
+  title: string;
+  price: number;
+  image: string;
+  category: string;
+  description: string;
+}
 
 export default function App() {
+
+  const [listProdutos, setListProdutos] = useState<Produto[]>([])
+  const API_URL = 'https://fakestoreapi.com/products'
+
+  useEffect(() => {
+    fetchProdutos();
+  }, []);
+
+  const fetchProdutos = async () => {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    console.log(data);
+    setListProdutos(data);
+  }
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {listProdutos.map((produto, index) => (
         <View key={produto.id} style={styles.card}>
           <View style={styles.cardLeft}>
-            <Text style={styles.cardIndex}>#{produto.id}</Text>
-            <Text style={styles.cardText}>{produto.nome}</Text>
+            <Image
+              style={styles.cardImage}
+              source={{ uri: produto.image || 'https://via.placeholder.com/64x64.png?text=IMG' }}
+              resizeMode="cover"
+            />
+            <View style={styles.cardInfo}>
+              <Text style={styles.cardIndex}>#{produto.id}</Text>
+              <Text style={styles.cardText}>{produto.title}</Text>
+            </View>
           </View>
           <Text style={styles.cardPrice}>
-            {produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            {produto.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </Text>
         </View>
       ))}
       <StatusBar style="auto" />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f2f6fb',
     alignItems: 'stretch',
     justifyContent: 'flex-start',
@@ -38,24 +63,36 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     backgroundColor: '#ffffff',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     marginBottom: 12,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // iOS shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
-    // Android elevation
     elevation: 3,
     borderWidth: 1,
     borderColor: '#e6eef7',
   },
   cardLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#eef3fb',
+    borderWidth: 1,
+    borderColor: '#e6eef7',
+  },
+  cardInfo: {
     flex: 1,
     flexDirection: 'column',
   },
